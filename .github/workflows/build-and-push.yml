@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 env:
-  REGISTRY: ccprodacr2025.azurecr.io
-  IMAGE_NAME: campus-connect-backend
+  REGISTRY: ${{ vars.ACR_LOGIN_SERVER }}
+  IMAGE_NAME: ${{ vars.BACKEND_IMAGE_NAME }}
 
 jobs:
   build-and-push:
