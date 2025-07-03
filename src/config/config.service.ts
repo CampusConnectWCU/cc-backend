@@ -54,6 +54,11 @@ export class ConfigService {
   get redisUri(): string {
     const host = this.getRequiredEnv('REDIS_HOST');
     const port = this.getRequiredEnv('REDIS_PORT');
+    const password = this.nestConfigService.get<string>('REDIS_KEY');
+    
+    if (password) {
+      return `redis://:${password}@${host}:${port}`;
+    }
     return `redis://${host}:${port}`;
   }
 
