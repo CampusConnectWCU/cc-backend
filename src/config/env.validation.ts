@@ -11,9 +11,22 @@ export const envValidationSchema = Joi.object({
   CORS_ORIGIN: Joi.string().default('*'),
 
   // Mongo configuration
-  MONGO_HOST: Joi.string().required(),
-  MONGO_PORT: Joi.number().required(),
-  MONGO_DB: Joi.string().required(),
+  MONGODB_URI: Joi.string().optional(), // For MongoDB Atlas
+  MONGO_HOST: Joi.string().when('MONGODB_URI', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
+  MONGO_PORT: Joi.number().when('MONGODB_URI', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
+  MONGO_DB: Joi.string().when('MONGODB_URI', {
+    is: Joi.exist(),
+    then: Joi.optional(),
+    otherwise: Joi.required()
+  }),
 
   // Redis configuration
   REDIS_HOST: Joi.string().required(),

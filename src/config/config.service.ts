@@ -42,8 +42,15 @@ export class ConfigService {
     return this.nestConfigService.get<string>('CORS_ORIGIN') || '*';
   }
 
-  // Build the Mongo URI from individual variables.
+  // Build the Mongo URI from individual variables or use MONGODB_URI if available.
   get mongoUri(): string {
+    // Check if MONGODB_URI is provided (for MongoDB Atlas)
+    const mongoUri = this.nestConfigService.get<string>('MONGODB_URI');
+    if (mongoUri) {
+      return mongoUri;
+    }
+    
+    // Fallback to building from individual components
     const host = this.getRequiredEnv('MONGO_HOST');
     const port = this.getRequiredEnv('MONGO_PORT');
     const db = this.getRequiredEnv('MONGO_DB');
