@@ -30,16 +30,8 @@ jobs:
         run: |
           az acr login --name ${{ env.REGISTRY }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Set TAG
+        run: echo "TAG=${{ vars.TAG_POLICY }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -47,10 +39,8 @@ jobs:
           context: .
           file: ./Dockerfile.backend.prod
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
       - name: Output image info
         run: |
-          echo "Built image: ${{ steps.meta.outputs.tags }}"
-          echo "Image digest: ${{ steps.meta.outputs.labels }}"
+          echo "Built image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}"
