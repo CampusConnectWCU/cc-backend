@@ -57,9 +57,9 @@ export class ConfigService {
     const password = this.nestConfigService.get<string>('REDIS_KEY');
     
     if (password) {
-      return `redis://:${password}@${host}:${port}`;
+      return `rediss://:${password}@${host}:${port}`;
     }
-    return `redis://${host}:${port}`;
+    return `rediss://${host}:${port}`;
   }
 
   get sessionSecret(): string {
