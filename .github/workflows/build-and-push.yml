@@ -1,10 +1,12 @@
 name: Build and Push Backend Image
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag for the Docker image (e.g., v1.0.0, latest)"
+        required: true
+        default: "latest"
 
 env:
   REGISTRY: ${{ vars.ACR_LOGIN_SERVER }}
@@ -31,7 +33,9 @@ jobs:
           az acr login --name ${{ env.REGISTRY }}
 
       - name: Set TAG
-        run: echo "TAG=${{ vars.TAG_POLICY }}" >> $GITHUB_ENV
+        run: |
+          echo "TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
+          echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -39,8 +43,12 @@ jobs:
           context: .
           file: ./Dockerfile.backend.prod
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Output image info
         run: |
           echo "Built image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}"
+          echo "Release tag: ${{ env.RELEASE_TAG }}"
+          echo "Also tagged as: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
