@@ -44,9 +44,7 @@ export const redisProvider = {
       socket: {
         connectTimeout: 10000, // 10 seconds
         lazyConnect: true, // Don't connect immediately
-        tls: redisUri.startsWith('rediss://') ? {
-          rejectUnauthorized: false // Allow self-signed certificates
-        } : undefined
+        tls: redisUri.startsWith('rediss://') ? true : false
       }
     });
     
