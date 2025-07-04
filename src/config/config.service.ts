@@ -62,11 +62,16 @@ export class ConfigService {
     const host = this.getRequiredEnv('REDIS_HOST');
     const port = this.getRequiredEnv('REDIS_PORT');
     const password = this.nestConfigService.get<string>('REDIS_KEY');
+    const ssl = this.nestConfigService.get<string>('REDIS_SSL');
+    
+    // Use SSL if explicitly set to "true" or if port is 6380 (Azure Redis SSL port)
+    const useSSL = ssl === 'true' || port === '6380';
+    const protocol = useSSL ? 'rediss' : 'redis';
     
     if (password) {
-      return `rediss://:${password}@${host}:${port}`;
+      return `${protocol}://:${password}@${host}:${port}`;
     }
-    return `rediss://${host}:${port}`;
+    return `${protocol}://${host}:${port}`;
   }
 
   get sessionSecret(): string {

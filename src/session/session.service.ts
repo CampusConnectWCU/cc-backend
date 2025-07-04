@@ -5,30 +5,16 @@ import { EncryptionService } from '../encryption/encryption.service';
 import { Request } from 'express';
 import * as cookie from 'cookie';
 import * as signature from 'cookie-signature';
-import { createClient, RedisClientType } from 'redis';
 
 @Injectable()
 export class SessionService {
     private readonly logger = new Logger(SessionService.name);
-    private redisClient: RedisClientType;
 
     constructor(
         private readonly databaseService: DatabaseService,
         private readonly configService: ConfigService,
         private readonly encryptionService: EncryptionService,
-    ) {
-        this.redisClient = createClient({
-            url: this.configService.redisUri,
-            socket: { reconnectStrategy: (retries) => Math.min(retries * 50, 1000) },
-        });
-
-        this.redisClient.on('error', (err) =>
-            this.logger.error('Redis error:', err)
-        );
-        this.redisClient.connect().catch((err) =>
-            this.logger.error('Failed to connect to Redis:', err)
-        );
-    }
+    ) {}
 
     /**
      * Saves a session using the userID and express-session data.
@@ -84,7 +70,7 @@ export class SessionService {
         const redisKey = `session:${sessionId}`; // Matches your middleware prefix
         let encryptedSessionData: string | null;
         try {
-            encryptedSessionData = await this.redisClient.get(redisKey);
+            encryptedSessionData = await this.databaseService.redisClient.get(redisKey);
         } catch (err) {
             this.logger.error('Error retrieving session from Redis:', err);
             return null;

@@ -12,7 +12,6 @@ import { ConfigService } from '../config/config.service';
 import { DatabaseService } from '../database/database.service';
 import * as session from 'express-session';
 import { RedisStore } from 'connect-redis';
-import { createClient } from 'redis';
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
@@ -24,21 +23,8 @@ export class SessionMiddleware implements NestMiddleware {
     private readonly encryptionService: EncryptionService,
     private readonly databaseService: DatabaseService,
   ) {
-    // Create a Redis client for session storage.
-    const redisClient = createClient({
-      url: this.configService.redisUri,
-      socket: { reconnectStrategy: (retries) => Math.min(retries * 50, 1000) },
-    });
-
-    redisClient.on('connect', () =>
-      this.logger.log('✅ Redis session store connected'),
-    );
-    redisClient.on('error', (err) =>
-      this.logger.error('❌ Redis session store error:', err),
-    );
-    redisClient.connect().catch((err) =>
-      this.logger.error('❌ Failed to connect to Redis:', err),
-    );
+    // Use the Redis client from the database service
+    const redisClient = this.databaseService.redisClient;
 
     // Create a RedisStore that uses the EncryptionService to secure session data.
     const store = new RedisStore({
