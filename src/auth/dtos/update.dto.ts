@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from "class-validator";
 
 /**
  * @file update.dto.ts
@@ -16,7 +16,3 @@ export class UpdateUserDto {
   readonly oldPassword?: string; // Added for password updates
   readonly password?: string; // Represents the new password
 }
-
-
-
-

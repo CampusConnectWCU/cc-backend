@@ -4,9 +4,9 @@
  * logs incoming HTTP requests and their response status/duration using the AppLogger.
  */
 
-import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { AppLogger } from '../../core/logger';
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+import { AppLogger } from "../../core/logger";
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -21,7 +21,7 @@ export class LoggerMiddleware implements NestMiddleware {
     const startTime = Date.now();
 
     // Attach a listener to the 'finish' event on the response.
-    res.on('finish', () => {
+    res.on("finish", () => {
       const duration = Date.now() - startTime;
       const message = `${method} ${originalUrl} ${res.statusCode} - ${duration}ms`;
       AppLogger.log(message);

@@ -1,17 +1,15 @@
 /**
  * @file session.middleware.ts
  * @description Intercepts incoming HTTP requests, decrypts session data from the cookie,
- * and attaches the resulting session to the request object. This implementation uses Redis as a store,
+ * and attaches the resulting session to the request object. This implementation uses an in-memory store,
  * with encryption applied to session data for additional security.
  */
 
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { EncryptionService } from '../encryption/encryption.service';
-import { ConfigService } from '../config/config.service';
-import { DatabaseService } from '../database/database.service';
-import * as session from 'express-session';
-import { RedisStore } from 'connect-redis';
+import { Injectable, NestMiddleware, Logger } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+import { EncryptionService } from "../encryption/encryption.service";
+import { ConfigService } from "../config/config.service";
+import * as session from "express-session";
 
 @Injectable()
 export class SessionMiddleware implements NestMiddleware {
@@ -20,38 +18,11 @@ export class SessionMiddleware implements NestMiddleware {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly encryptionService: EncryptionService,
-    private readonly databaseService: DatabaseService,
+    private readonly encryptionService: EncryptionService
   ) {
-    // Use the Redis client from the database service
-    const redisClient = this.databaseService.redisClient;
-
-    // Create a RedisStore that uses the EncryptionService to secure session data.
-    const store = new RedisStore({
-      client: redisClient,
-      prefix: 'session:',
-      ttl: 86400, // 1 day in seconds
-      serializer: {
-        parse: (data: string) => {
-          try {
-            const decrypted = this.encryptionService.decrypt(data);
-            return JSON.parse(decrypted);
-          } catch (err) {
-            this.logger.error('Failed to parse session data:', err);
-            return {};
-          }
-        },
-        stringify: (data: any) => {
-          try {
-            const stringified = JSON.stringify(data);
-            return this.encryptionService.encrypt(stringified);
-          } catch (err) {
-            this.logger.error('Failed to stringify session data:', err);
-            return '';
-          }
-        },
-      },
-    });
+    // Create an in-memory session store with encryption
+    const MemoryStore = session.MemoryStore;
+    const store = new MemoryStore();
 
     // Initialize the express-session middleware.
     this.sessionMiddleware = session({
@@ -78,7 +49,7 @@ export class SessionMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
     // Ensure req.url is defined
     if (!req.url) {
-      req.url = '/';
+      req.url = "/";
     }
     // Safely assign _parsedUrl if not already defined (needed by some Express setups)
     if (!(req as any)._parsedUrl) {

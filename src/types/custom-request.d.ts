@@ -1,5 +1,5 @@
-import { Request } from 'express';
-import * as session from 'express-session';
+import { Request } from "express";
+import * as session from "express-session";
 
 declare global {
   namespace Express {
@@ -9,4 +9,4 @@ declare global {
   }
 }
 
-export {}; 
+export {};

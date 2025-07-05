@@ -4,15 +4,14 @@
  * and SessionService, enabling pluggable session strategies.
  */
 
-import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { SessionService } from './session.service';
-import { SessionMiddleware } from './session.middleware';
-import { ConfigModule } from '../config/config.module';
-import { DatabaseModule } from '../database/database.module';
-import { EncryptionModule } from '../encryption/encryption.module';
+import { Module, MiddlewareConsumer, RequestMethod } from "@nestjs/common";
+import { SessionService } from "./session.service";
+import { SessionMiddleware } from "./session.middleware";
+import { ConfigModule } from "../config/config.module";
+import { EncryptionModule } from "../encryption/encryption.module";
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, EncryptionModule],
+  imports: [ConfigModule, EncryptionModule],
   providers: [SessionService, SessionMiddleware],
   exports: [SessionService],
 })
@@ -21,6 +20,6 @@ export class SessionModule {
     // Apply the session middleware to all routes.
     consumer
       .apply(SessionMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.ALL });
+      .forRoutes({ path: "*", method: RequestMethod.ALL });
   }
 }

@@ -1,8 +1,8 @@
-import { Module, Logger } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { CampusController } from './campus.controller';
-import { CampusService } from './campus.service';
-import { CampusSchema, CAMPUS_MODEL } from './schemas/campus.schema';
+import { Module, Logger } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { CampusController } from "./campus.controller";
+import { CampusService } from "./campus.service";
+import { CampusSchema, CAMPUS_MODEL } from "./schemas/campus.schema";
 
 @Module({
   imports: [

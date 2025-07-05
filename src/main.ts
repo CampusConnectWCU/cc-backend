@@ -5,18 +5,20 @@
  * using values from the ConfigService.
  */
 
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Logger } from '@nestjs/common';
-import { ConfigService } from './config/config.service';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { SessionMiddleware } from './session/session.middleware';
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { Logger } from "@nestjs/common";
+import * as cookieParser from "cookie-parser";
+import { ConfigService } from "./config/config.service";
+import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { LoggerMiddleware } from "./common/middleware/logger.middleware";
+import { SessionMiddleware } from "./session/session.middleware";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
   const configService = app.get(ConfigService);
-  const logger = new Logger('Bootstrap');
+  const logger = new Logger("Bootstrap");
 
   // Set global API prefix.
   app.setGlobalPrefix(configService.apiPrefix);

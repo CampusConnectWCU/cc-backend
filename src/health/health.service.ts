@@ -1,24 +1,23 @@
 /**
  * @file health.service.ts
- * @description Provides health check functionality for external dependencies like MongoDB and Redis.
+ * @description Provides health check functionality for external dependencies like MongoDB.
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { DatabaseService } from '../database/database.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { DatabaseService } from "../database/database.service";
 
 @Injectable()
 export class HealthService {
   private readonly logger = new Logger(HealthService.name);
 
-  constructor(private readonly databaseService: DatabaseService) { }
+  constructor(private readonly databaseService: DatabaseService) {}
 
   /**
-   * Checks the health of the database connections.
-   * @returns An object with the status of Redis and MongoDB.
+   * Checks the health of all external dependencies.
+   * @returns An object with the status of MongoDB.
    */
-  async checkDatabaseHealth(): Promise<{ redis: string; mongo: string }> {
-    const redis = await this.databaseService.pingRedis();
-    await this.databaseService.mongoHealthCheck();
-    return { redis, mongo: 'healthy' };
+  async checkDatabaseHealth(): Promise<{ mongo: string }> {
+    const isConnected = this.databaseService.isConnected();
+    return { mongo: isConnected ? "healthy" : "unhealthy" };
   }
 }

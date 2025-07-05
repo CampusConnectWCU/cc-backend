@@ -3,8 +3,8 @@
  * @description Provides strongly typed access to environment variables.
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService as NestConfigService } from '@nestjs/config';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService as NestConfigService } from "@nestjs/config";
 
 @Injectable()
 export class ConfigService {
@@ -22,71 +22,61 @@ export class ConfigService {
   }
 
   get nodeEnv(): string {
-    return this.nestConfigService.get<string>('NODE_ENV') || 'development';
+    return this.nestConfigService.get<string>("NODE_ENV") || "development";
   }
 
   get port(): number {
-    const port = this.nestConfigService.get<number>('PORT');
+    const port = this.nestConfigService.get<number>("PORT");
     if (!port) {
-      this.logger.error('Missing required environment variable: PORT');
-      throw new Error('Missing required environment variable: PORT');
+      this.logger.error("Missing required environment variable: PORT");
+      throw new Error("Missing required environment variable: PORT");
     }
     return port;
   }
 
   get apiPrefix(): string {
-    return this.nestConfigService.get<string>('API_PREFIX') || 'api';
+    return this.nestConfigService.get<string>("API_PREFIX") || "api";
   }
 
   get corsOrigin(): string {
-    return this.nestConfigService.get<string>('CORS_ORIGIN') || '*';
+    return this.nestConfigService.get<string>("CORS_ORIGIN") || "*";
   }
 
-  // Build the Mongo URI from individual variables or use MONGODB_URI if available.
   get mongoUri(): string {
-    // Check if MONGODB_URI is provided (for MongoDB Atlas)
-    const mongoUri = this.nestConfigService.get<string>('MONGODB_URI');
+    const mongoUri = this.nestConfigService.get<string>("MONGODB_URI");
     if (mongoUri) {
       return mongoUri;
     }
-    
+
     // Fallback to building from individual components
-    const host = this.getRequiredEnv('MONGO_HOST');
-    const port = this.getRequiredEnv('MONGO_PORT');
-    const db = this.getRequiredEnv('MONGO_DB');
+    const host = this.getRequiredEnv("MONGO_HOST");
+    const port = this.getRequiredEnv("MONGO_PORT");
+    const db = this.getRequiredEnv("MONGO_DB");
     return `mongodb://${host}:${port}/${db}`;
   }
 
-  // Build the Redis URI from individual variables.
-  get redisUri(): string {
-    const host = this.getRequiredEnv('REDIS_HOST');
-    const port = this.getRequiredEnv('REDIS_PORT');
-    const password = this.nestConfigService.get<string>('REDIS_KEY');
-    const ssl = this.nestConfigService.get<string>('REDIS_SSL');
-    
-    // Use SSL if explicitly set to "true" or if port is 6380 (Azure Redis SSL port)
-    const useSSL = ssl === 'true' || port === '6380';
-    const protocol = useSSL ? 'rediss' : 'redis';
-    
-    if (password) {
-      return `${protocol}://:${password}@${host}:${port}`;
-    }
-    return `${protocol}://${host}:${port}`;
+  get sessionSecret(): string {
+    return this.getRequiredEnv("SESSION_SECRET");
   }
 
-  get sessionSecret(): string {
-    return this.getRequiredEnv('SESSION_SECRET');
+  get jwtSecret(): string {
+    return this.getRequiredEnv("JWT_SECRET");
   }
 
   get encryptionKey(): string {
-    return this.getRequiredEnv('ENCRYPTION_KEY');
+    return this.getRequiredEnv("ENCRYPTION_KEY");
   }
 
   get cookieSecure(): boolean {
-    return this.nestConfigService.get<boolean>('COOKIE_SECURE') || false;
+    return this.nestConfigService.get<boolean>("COOKIE_SECURE") || false;
   }
 
-  get cookieSameSite(): 'lax' | 'strict' | 'none' {
-    return this.nestConfigService.get<string>('COOKIE_SAME_SITE') as 'lax' | 'strict' | 'none' || 'strict';
+  get cookieSameSite(): "lax" | "strict" | "none" {
+    return (
+      (this.nestConfigService.get<string>("COOKIE_SAME_SITE") as
+        | "lax"
+        | "strict"
+        | "none") || "strict"
+    );
   }
 }
