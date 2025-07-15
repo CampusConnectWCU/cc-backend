@@ -18,7 +18,7 @@ export class ChannelsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const userId = request.session?.userId;
+    const userId = request.user?.sub;
     const channelId = request.params?.channelId || request.body?.channelId;
     const routePath = request.route.path;
 

@@ -8,7 +8,7 @@ import {
 import { Server, Socket } from "socket.io";
 import * as cookie from "cookie";
 import { ConfigService } from "../config/config.service";
-import { SessionService } from "../session/session.service";
+import { JwtUtilService } from "../jwt-util/jwt-util.service";
 import { Logger, OnModuleInit } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
@@ -37,7 +37,7 @@ export class NotificationsGateway
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly sessionService: SessionService,
+    private readonly jwtUtil: JwtUtilService,
     private readonly eventEmitter: EventEmitter2
   ) {}
 
@@ -63,24 +63,26 @@ export class NotificationsGateway
   async handleConnection(client: Socket) {
     try {
       const cookies = cookie.parse(client.handshake.headers.cookie || "");
-      const rawCookie = cookies["connect.sid"];
-      if (!rawCookie) {
-        this.logger.error("No session cookie found. Disconnecting client.");
+      const token = cookies["jwt"];
+      if (!token) {
+        this.logger.error("No JWT cookie found. Disconnecting client.");
         client.disconnect();
         return;
       }
-      this.logger.log(`Client connected: rawCookie=${rawCookie}`);
-
-      const session =
-        await this.sessionService.getSessionFromRawCookie(rawCookie);
-      if (!session || !session.userId) {
-        this.logger.error("Unauthenticated session. Disconnecting client.");
+      const payload = this.jwtUtil.verify(token);
+      if (!payload) {
+        this.logger.error("Invalid JWT. Disconnecting client.");
         client.disconnect();
         return;
       }
-      // Map the socket by userId.
-      this.clients.set(session.userId, client);
-      this.logger.log(`Client connected: userId=${session.userId}`);
+      const userId = payload.sub;
+      if (!userId) {
+        this.logger.error("No userId in JWT payload. Disconnecting client.");
+        client.disconnect();
+        return;
+      }
+      this.clients.set(userId, client);
+      this.logger.log(`Client connected: userId=${userId}`);
     } catch (error) {
       this.logger.error("Error during connection authentication:", error);
       client.disconnect();

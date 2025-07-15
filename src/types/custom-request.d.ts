@@ -1,11 +1,10 @@
 import { Request } from "express";
-import * as session from "express-session";
+
+// No session property needed anymore.
 
 declare global {
   namespace Express {
-    interface Request {
-      session: session.Session & { userId?: string };
-    }
+    interface Request {}
   }
 }
 

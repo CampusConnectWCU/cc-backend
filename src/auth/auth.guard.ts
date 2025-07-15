@@ -15,8 +15,8 @@ interface CustomRequest extends Request {
 @Injectable()
 export class AuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<CustomRequest>();
-    // Checks for the presence of userId in the session.
-    return Boolean(request.session && request.session.userId);
+    const request = context.switchToHttp().getRequest();
+    // Checks for the presence of userId in the JWT payload.
+    return Boolean(request.user && request.user.sub);
   }
 }
