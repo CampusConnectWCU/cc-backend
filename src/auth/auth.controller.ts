@@ -63,6 +63,7 @@ export class AuthController {
     return this.authService.logout();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get("session")
   async getSession(@CurrentUser() userId: string): Promise<any> {
     if (!userId) {
