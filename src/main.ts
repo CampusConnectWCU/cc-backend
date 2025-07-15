@@ -12,7 +12,6 @@ import * as cookieParser from "cookie-parser";
 import { ConfigService } from "./config/config.service";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { LoggerMiddleware } from "./common/middleware/logger.middleware";
-import { SessionMiddleware } from "./session/session.middleware";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
